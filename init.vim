@@ -63,6 +63,7 @@ if dein#load_state(expand('~/.nvim-dein'))
   call dein#add('tpope/vim-fugitive')
   call dein#add('tpope/vim-projectionist')
   call dein#add('tpope/vim-surround')
+  call dein#add('tpope/vim-rails')
   call dein#add('tpope/vim-unimpaired')
 
   " Easy align
