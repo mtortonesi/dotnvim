@@ -18,6 +18,9 @@ if dein#load_state(expand('~/.nvim-dein'))
   " plugins' root path
   call dein#begin(expand('~/.nvim-dein'))
 
+  " Modeline security
+  call dein#add('ciaranm/securemodelines')
+
   " Plugin management
   call dein#add('Shougo/dein.vim')
 
