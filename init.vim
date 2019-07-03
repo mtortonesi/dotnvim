@@ -220,37 +220,7 @@ nnoremap <silent> __ :%g/^$/d<CR>
 
 " ******************** FILETYPE SPECIFIC INDENTATION ********************
 
-augroup vim
-  " Make sure to clear any previous settings in this group
-  autocmd!
-
-  " Vimscript source code: set 2-space indentation
-  autocmd FileType vim  setlocal ts=8 sw=2 sts=2 expandtab
-augroup END
-
-augroup java
-  " Make sure to clear any previous settings in this group
-  autocmd!
-
-  " Java source code: set 4-space indentation
-  autocmd FileType java  setlocal ts=8 sw=4 sts=4 expandtab
-augroup END
-
-augroup ruby
-  " Make sure to clear any previous settings in this group
-  autocmd!
-
-  " Ruby source code: set 2-space indentation
-  autocmd FileType ruby  setlocal ts=8 sw=2 sts=2 expandtab
-  autocmd FileType eruby setlocal ts=8 sw=2 sts=2 expandtab
-augroup END
-
-augroup c
-  " Make sure to clear any previous settings in this group
-  autocmd!
-
-  autocmd FileType c     setlocal ts=8 sw=8 sts=8 expandtab
-augroup END
+" Moved the entire configuration to ~/.config/nvim/after/ftplugin
 
 
 " ******************** FILE OPENING SHORTCUTS ********************
