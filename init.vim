@@ -82,6 +82,8 @@ if dein#load_state(expand('~/.nvim-dein'))
   " call dein#add('tpope/vim-vinegar')
   " call dein#add('Shougo/vimfiler.vim')
 
+  call dein#add('bogado/file-line')
+
   """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   call dein#end()
@@ -129,6 +131,12 @@ set foldlevel=99
 " Prevents inserting two spaces after punctuation on a join (J)
 set nojoinspaces
 
+" Disable annoying conceal
+set conceallevel=0
+
+" Disable modelines, use securemodelines.vim instead
+set nomodeline
+
 " Allow to override the following settings via modelines
 let g:secure_modelines_allowed_items = [
             \ "syntax",      "syn",
@@ -142,6 +150,9 @@ let g:secure_modelines_allowed_items = [
             \ "readonly",    "ro",   "noreadonly", "noro",
             \ "rightleft",   "rl",   "norightleft", "norl"
             \ ]
+
+" Use xdiff with patience algorithm (https://vimways.org/2018/the-power-of-diff/)
+set diffopt=internal,algorithm:patience,indent-heuristic
 
 
 " ******************** COLORS ********************
@@ -254,7 +265,7 @@ runtime macros/matchit.vim
 " Shows the effects of :substitute, :smagic, and :snomagic commands
 " incrementally, as you type.
 if exists('&inccommand')
-  set inccommand=split
+  set inccommand=nosplit
 endif
 
 
