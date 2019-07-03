@@ -99,6 +99,9 @@ let test#strategy = "neovim"
 
 syntax enable
 
+" Enable mouse
+set mouse=a
+
 " Improve the cursor visibility
 set cursorline
 
