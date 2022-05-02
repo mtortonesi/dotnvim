@@ -1,7 +1,92 @@
 " ******************** PLUGINS ********************
 
-" Not required, as this is already the default in NeoVim or Vim 8+
-" set nocompatible
+if &compatible
+  set nocompatible
+endif
+
+" Specify a directory for plugins
+" - For Neovim: stdpath('data') . '/plugged'
+" - For Vim: '.vim/plugged'
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin(stdpath('data') . '/plugged')
+
+  " Modeline security
+  Plug 'ciaranm/securemodelines'
+
+  " Color schemes
+  Plug 'flazz/vim-colorschemes'
+
+  " Treesitter
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} " Automatically update the parsers
+  " Plug 'nvim-treesitter/playground' 
+  " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+  
+  " Completion
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'hrsh7th/cmp-nvim-lsp'
+  Plug 'hrsh7th/cmp-buffer'
+  Plug 'hrsh7th/cmp-path'
+  Plug 'hrsh7th/cmp-cmdline'
+  Plug 'hrsh7th/nvim-cmp'
+  Plug 'onsails/lspkind-nvim'
+
+  " Snippets
+  Plug 'hrsh7th/cmp-vsnip'
+  Plug 'hrsh7th/vim-vsnip'
+  Plug 'hrsh7th/vim-vsnip-integ'
+  Plug 'rafamadriz/friendly-snippets'
+  " Plug 'norcalli/snippets.nvim'
+  
+  " Telescope
+  Plug 'nvim-lua/popup.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+
+  " Motion and searching extensions
+  Plug 'easymotion/vim-easymotion'
+  Plug 'haya14busa/incsearch.vim'
+  Plug 'haya14busa/incsearch-easymotion.vim'
+  
+  " Easy align
+  Plug 'junegunn/vim-easy-align'
+
+  " Async testing
+  Plug 'janko-m/vim-test'
+  Plug 'neomake/neomake'
+
+  " Tim Pope's stuff
+  Plug 'vim-ruby/vim-ruby'
+  Plug 'tpope/vim-abolish'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-dispatch'
+  " Plug 'tpope/vim-endwise' " Plays bad with compe
+  Plug 'tpope/vim-fugitive'
+  Plug 'tpope/vim-projectionist'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-rails'
+  Plug 'tpope/vim-unimpaired'
+
+  " Rust support
+  Plug 'rust-lang/rust.vim'
+
+  " Zig support
+  Plug 'ziglang/zig.vim'
+
+  " Facilitate opening files from grep output
+  Plug 'bogado/file-line'
+
+  """""""""""""""""""""""""""""""""" TODO """"""""""""""""""""""""""""""""""""""""
+
+  " Expand region
+  Plug 'terryma/vim-expand-region'
+
+  " Local .vimrc support
+  Plug 'embear/vim-localvimrc'
+
+  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Initialize plugin system
+call plug#end()
 
 " Enable file type detection and language-dependent indenting.
 " Use the default filetype settings, so that mail gets 'tw' set to 72,
@@ -10,85 +95,6 @@
 " Note: this is required by many different functions provided either by the
 " editor or by plugins, such as vim-commentary.
 filetype plugin indent on
-
-" path to dein.vim
-set runtimepath+=~/.nvim-dein/repos/github.com/Shougo/dein.vim
-
-if dein#load_state(expand('~/.nvim-dein'))
-  " plugins' root path
-  call dein#begin(expand('~/.nvim-dein'))
-
-  " Modeline security
-  call dein#add('ciaranm/securemodelines')
-
-  " Plugin management
-  call dein#add('Shougo/dein.vim')
-
-  " Color schemes
-  call dein#add('flazz/vim-colorschemes')
-
-  " Denite & co.
-  call dein#add('Shougo/denite.nvim')
-  call dein#add('Shougo/neomru.vim')
-  " call dein#add('Shougo/neoyank.vim') " Not needed, at least for now
-
-  " Completion
-  call dein#add('Shougo/deoplete.nvim')
-  call dein#add('fishbullet/deoplete-ruby')
-  call dein#add('awetzel/elixir.nvim')
-
-  " Snippets
-  call dein#add('Shougo/neosnippet')
-  call dein#add('Shougo/neosnippet-snippets')
-
-  " Motion and searching extensions
-  call dein#add('easymotion/vim-easymotion')
-  call dein#add('haya14busa/incsearch.vim')
-  call dein#add('haya14busa/incsearch-easymotion.vim')
-
-  " Async grepping
-  call dein#add('mhinz/vim-grepper')
-  " call dein#add('Numkil/ag.nvim') " Async neovim-specific plugin
-
-  " Async testing
-  call dein#add('janko-m/vim-test')
-  call dein#add('neomake/neomake')
-
-  " Tim Pope's stuff
-  call dein#add('vim-ruby/vim-ruby')
-  call dein#add('tpope/vim-abolish')
-  call dein#add('tpope/vim-commentary')
-  call dein#add('tpope/vim-dispatch')
-  call dein#add('tpope/vim-endwise')
-  call dein#add('tpope/vim-fugitive')
-  call dein#add('tpope/vim-projectionist')
-  call dein#add('tpope/vim-surround')
-  call dein#add('tpope/vim-rails')
-  call dein#add('tpope/vim-unimpaired')
-
-  " Easy align
-  call dein#add('junegunn/vim-easy-align')
-
-  """""""""""""""""""""""""""""""""" TODO """"""""""""""""""""""""""""""""""""""""
-
-  " Expand region
-  call dein#add('terryma/vim-expand-region')
-
-  " Local .vimrc support
-  call dein#add('embear/vim-localvimrc')
-
-  " Filer - choose which one to adopt
-  " call dein#add('scrooloose/nerdtree')
-  " call dein#add('tpope/vim-vinegar')
-  " call dein#add('Shougo/vimfiler.vim')
-
-  call dein#add('bogado/file-line')
-
-  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-  call dein#end()
-  call dein#save_state()
-endif
 
 " make test commands execute using dispatch.vim
 let test#strategy = "neovim"
@@ -167,7 +173,8 @@ set termguicolors
 set background=dark
 
 " Use lucius colorscheme
-colorscheme lucius
+colorscheme ir_black
+" colorscheme lucius
 
 " Fix hideous colors for Search (which make denite.nvim almost unusable)
 augroup FixSearch
@@ -272,32 +279,93 @@ if exists('&inccommand')
 endif
 
 
-" ******************** DENITE ********************
+" ******************** NVIM-CMP ********************
 
-" Find file within current directory by name
-nnoremap <C-p> :Denite file_rec<CR>
-
-" Find MRU file by name
-nnoremap <Leader>m :Denite file_mru<CR>
-
-" Find buffer by name
-" (Note: -auto-preview seems useless and it is also broken at the moment)
-nnoremap <Leader>b :Denite buffer<CR>
-
-" Jump to line of file displayed in current buffer by content
-nnoremap <Leader>l :Denite line<CR>
-
-" Jump to line of file within current directory by content
-nnoremap <Leader>r :Denite grep -no-quit<CR>
-
-" Find yank by content (in order to paste it in current buffer)
-" nnoremap <Leader>y :Denite neoyank<CR>
+" Setup completion menu mode
+set completeopt=menu,menuone ",noselect
+" set completeopt=menuone,noselect
 
 
-" ******************** DEOPLETE ********************
+lua <<EOF
+  -- Setup nvim-cmp with lspkind
+  local cmp = require'cmp'
+  local lspkind = require('lspkind')
 
-" Enable Deoplete at startup
-let g:deoplete#enable_at_startup = 1
+  cmp.setup({
+    snippet = {
+      expand = function(args) -- REQUIRED - you must specify a snippet engine
+        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+      end,
+    },
+    completion = {
+      keyword_length = 3, -- do not turn on completion for strings shorter than 3 characters
+    },
+    mapping = {
+      ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+      ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+      ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+      ['<C-e>'] = cmp.mapping({
+        i = cmp.mapping.abort(),
+        c = cmp.mapping.close(),
+      }),
+      ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    },
+    sources = cmp.config.sources({
+      { name = 'nvim_lsp' },
+      { name = "path" },
+      { name = 'vsnip' }, -- For vsnip users.
+      -- { name = 'luasnip' }, -- For luasnip users.
+    }, {
+      { name = 'buffer' },
+    }),
+    formatting = {
+      format = lspkind.cmp_format({
+        with_text = false, 
+        -- maxwidth = 50,
+        menu = ({
+          nvim_lsp = "[LSP]",
+          buffer = "[Buffer]",
+          vsnip = "[Snip]",
+          --luasnip = "[LuaSnip]",
+          path = "[Path]",
+          nvim_lua = "[Lua]",
+          -- latex_symbols = "[Latex]",
+        })
+      })
+     },
+     experimental = {
+       ghost_text = true,
+     },
+  })
+
+  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline('/', {
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline(':', {
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    })
+  })
+
+  -- Setup lspconfig.
+  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+  require'lspconfig'.clangd.setup{
+    capabilities = capabilities
+  }
+  require'lspconfig'.solargraph.setup{
+    capabilities = capabilities
+  }
+EOF
 
 
 " ******************** TO CHECK ********************
