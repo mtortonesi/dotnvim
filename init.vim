@@ -43,9 +43,10 @@ call plug#begin(stdpath('data') . '/plugged')
   Plug 'nvim-telescope/telescope.nvim'
 
   " Motion and searching extensions
-  Plug 'easymotion/vim-easymotion'
-  Plug 'haya14busa/incsearch.vim'
-  Plug 'haya14busa/incsearch-easymotion.vim'
+  " Plug 'easymotion/vim-easymotion'
+  Plug 'haya14busa/is.vim'
+  " Plug 'haya14busa/incsearch.vim'
+  " Plug 'haya14busa/incsearch-easymotion.vim'
   
   " Easy align
   Plug 'junegunn/vim-easy-align'
