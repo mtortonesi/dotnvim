@@ -18,8 +18,8 @@ call plug#begin(stdpath('data') . '/plugged')
 
   " Treesitter
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} " Automatically update the parsers
-  " Plug 'nvim-treesitter/playground' 
-  " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+  Plug 'windwp/nvim-autopairs'
+  " Plug 'nvim-treesitter/nvim-treesitter-refactor' 
   
   " Completion
   Plug 'neovim/nvim-lspconfig'
@@ -31,22 +31,24 @@ call plug#begin(stdpath('data') . '/plugged')
   Plug 'onsails/lspkind-nvim'
 
   " Snippets
-  Plug 'hrsh7th/vim-vsnip'
-  Plug 'hrsh7th/vim-vsnip-integ'
-  Plug 'hrsh7th/cmp-vsnip'
+  Plug 'L3MON4D3/LuaSnip', {'tag': 'v1.*'}
+  Plug 'saadparwaiz1/cmp_luasnip'
   Plug 'rafamadriz/friendly-snippets'
-  " Plug 'norcalli/snippets.nvim'
   
   " Telescope
   Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim'
+  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+  Plug 'nvim-tree/nvim-web-devicons'
+  Plug 'BurntSushi/ripgrep'
+  Plug 'nvim-telescope/telescope-fzy-native.nvim'
 
   " Motion and searching extensions
-  " Plug 'easymotion/vim-easymotion'
   Plug 'haya14busa/is.vim'
-  " Plug 'haya14busa/incsearch.vim'
-  " Plug 'haya14busa/incsearch-easymotion.vim'
+  Plug 'phaazon/hop.nvim'
+
+  " Status line
+  Plug 'nvim-lualine/lualine.nvim'
   
   " Easy align
   Plug 'junegunn/vim-easy-align'
@@ -60,7 +62,6 @@ call plug#begin(stdpath('data') . '/plugged')
   Plug 'tpope/vim-abolish'
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-dispatch'
-  " Plug 'tpope/vim-endwise' " Plays bad with compe
   Plug 'tpope/vim-fugitive'
   Plug 'tpope/vim-projectionist'
   Plug 'tpope/vim-surround'
@@ -163,6 +164,9 @@ let g:secure_modelines_allowed_items = [
 
 " Use xdiff with patience algorithm (https://vimways.org/2018/the-power-of-diff/)
 set diffopt=internal,algorithm:patience,indent-heuristic
+
+" Always use system clipboard
+set clipboard+=unnamedplus
 
 
 " ******************** COLORS ********************
@@ -278,8 +282,8 @@ endif
 " ******************** NVIM-CMP ********************
 
 " Setup completion menu mode
-set completeopt=menu,menuone ",noselect
-" set completeopt=menuone,noselect
+set completeopt=menu,menuone,noinsert
+" set completeopt=menu,menuone,noinsert,noselect
 
 lua <<EOF
   -- Mappings.
@@ -316,72 +320,83 @@ lua <<EOF
     vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
   end
   
+  -- Set up lspconfig.
+  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+  -- local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   local lsp_flags = {
     -- This is the default in Nvim 0.7+
     debounce_text_changes = 150,
   }
-  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-  require('lspconfig')['clangd'].setup{
-      on_attach = on_attach,
-      flags = lsp_flags,
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
+  local lspconfig = require('lspconfig')
+
+  lspconfig['clangd'].setup{
+    capabilities = capabilities,
+    on_attach = on_attach,
+    flags = lsp_flags,
   }
-  require('lspconfig')['solargraph'].setup{
-      on_attach = on_attach,
-      flags = lsp_flags,
+  lspconfig['solargraph'].setup{
+    capabilities = capabilities,
+    on_attach = on_attach,
+    flags = lsp_flags,
   }
-  require('lspconfig')['rust_analyzer'].setup{
-      on_attach = on_attach,
-      flags = lsp_flags,
-      -- Server-specific settings...
-      settings = {
-        ["rust-analyzer"] = {}
-      }
+  lspconfig['rust_analyzer'].setup{
+    capabilities = capabilities,
+    on_attach = on_attach,
+    flags = lsp_flags,
+    -- Server-specific settings...
+    settings = {
+      ["rust-analyzer"] = {}
+    }
   }
 
   local cmp = require('cmp')
   local lspkind = require('lspkind')
+  local luasnip = require('luasnip')
+
   cmp.setup({
     snippet = {
-      -- REQUIRED - you must specify a snippet engine
       expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-        -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+        luasnip.lsp_expand(args.body) -- For `luasnip` users.
       end,
     },
     window = {
-      -- completion = cmp.config.window.bordered(),
-      -- documentation = cmp.config.window.bordered(),
+      completion = cmp.config.window.bordered(),
+      documentation = cmp.config.window.bordered(),
     },
     mapping = cmp.mapping.preset.insert({
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.abort(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+      ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+      ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+      ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+      -- Accept currently selected item. If none selected, `select` first item.
+      -- Set `select` to `false` to only confirm explicitly selected items.
+      ['<CR>'] = function(fallback)
+        if cmp.visible() then
+          -- cmp.confirm()
+          -- cmp.mapping.confirm { 
+          cmp.confirm({ 
+            -- behavior = cmp.ConfirmBehavior.Replace,
+            select = true,
+          })
+        else
+          fallback() -- If you use vim-endwise, this fallback will behave the same as vim-endwise.
+        end
+      end,
+      ['<C-e>'] = cmp.mapping({
+        i = cmp.mapping.abort(),
+        c = cmp.mapping.close(),
+      }),
     }),
     formatting = {
       format = lspkind.cmp_format({
-        with_text = false, 
-        -- maxwidth = 50,
-        menu = ({
-          nvim_lsp = "[LSP]",
-          buffer = "[Buffer]",
-          vsnip = "[Snip]",
-          --luasnip = "[LuaSnip]",
-          path = "[Path]",
-          nvim_lua = "[Lua]",
-          -- latex_symbols = "[Latex]",
-        })
+        mode = "symbol_text", 
+        maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
+        ellipsis_char = '...', -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
       })
     },
     sources = cmp.config.sources({
       { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-      -- { name = 'luasnip' }, -- For luasnip users.
-      -- { name = 'ultisnips' }, -- For ultisnips users.
-      -- { name = 'snippy' }, -- For snippy users.
+      { name = 'luasnip' }, -- For luasnip users.
     }, {
       { name = 'buffer' },
     })
@@ -414,16 +429,170 @@ lua <<EOF
     })
   })
 
-  -- Set up lspconfig.
-  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-  require'lspconfig'.clangd.setup{
-    capabilities = capabilities
+  -- Load snippets
+  require("luasnip.loaders.from_vscode").lazy_load()
+  
+  -- Treesitter
+  require'nvim-treesitter.configs'.setup {
+    -- A list of parser names, or "all"
+    ensure_installed = { "c", "java", "ruby", "lua", "rust" },
+
+    -- Install parsers synchronously (only applied to `ensure_installed`)
+    sync_install = false,
+
+    -- Automatically install missing parsers when entering buffer
+    -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+    auto_install = true,
+
+    -- List of parsers to ignore installing (for "all")
+    ignore_install = { "javascript" },
+
+    highlight = {
+      -- `false` will disable the whole extension
+      enable = true,
+
+      -- -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+      -- -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+      -- -- the name of the parser)
+      -- -- list of language that will be disabled
+      -- -- disable = { "c", "rust" },
+      -- -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+      -- disable = function(lang, buf)
+      --     local max_filesize = 100 * 1024 -- 100 KB
+      --     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      --     if ok and stats and stats.size > max_filesize then
+      --         return true
+      --     end
+      -- end,
+
+      -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+      -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+      -- Using this option may slow down your editor, and you may see some duplicate highlights.
+      -- Instead of true it can also be a list of languages
+      additional_vim_regex_highlighting = false,
+
+      -- Enable endwise plugin
+      -- endwise = { enable = true },
+    },
   }
-  require'lspconfig'.solargraph.setup{
-    capabilities = capabilities
+  -- require'nvim-treesitter.configs'.setup {
+  --   highlight = {
+  --     enable = true,
+  --     custom_captures = {
+  --       -- Highlight the @foo.bar capture group with the "Identifier" highlight group.
+  --       ["foo.bar"] = "Identifier",
+  --     },
+  --   },
+  --   incremental_selection = {
+  --     enable = true,
+  --     keymaps = {
+  --       init_selection = "gnn",
+  --       node_incremental = "grn",
+  --       scope_incremental = "grc",
+  --       node_decremental = "grm",
+  --     },
+  --   },
+  --   indent = {
+  --     enable = true,
+  --   },
+  --   endwise = {
+  --       enable = true,
+  --   },
+  -- }
+
+  -- Autopairs
+  -- If you want insert `(` after select function or method item
+  local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+  cmp.event:on(
+    'confirm_done',
+    cmp_autopairs.on_confirm_done()
+  )
+  local npairs = require("nvim-autopairs")
+  npairs.setup({
+    check_ts = true,
+    -- ts_config = {
+    --   -- lua = {'string'},-- don't add a pair on that treesitter node
+    --   -- javascript = {'template_string'},
+    --   java = false,-- don't check treesitter on java
+    -- },
+  })
+  npairs.add_rules(require('nvim-autopairs.rules.endwise-lua'))
+  npairs.add_rules(require('nvim-autopairs.rules.endwise-ruby'))
+  
+  -- Telescope
+  local ts_builtin = require('telescope.builtin')
+  vim.keymap.set('n', '<leader>ff', ts_builtin.find_files, {})
+  vim.keymap.set('n', '<leader>fg', ts_builtin.live_grep, {})
+  vim.keymap.set('n', '<leader>fb', ts_builtin.buffers, {})
+  vim.keymap.set('n', '<leader>fh', ts_builtin.help_tags, {})
+  require('telescope').load_extension('fzy_native')
+
+  -- Web Dev Icons
+  require('nvim-web-devicons').setup {
+    -- globally enable different highlight colors per icon (default to true)
+    -- if set to false all icons will have the default icon's color
+    color_icons = true,
+    -- globally enable default icons (default to false)
+    -- will get overriden by `get_icons` option
+    default = true,
+    -- -- your personnal icons can go here (to override)
+    -- -- you can specify color or cterm_color instead of specifying both of them
+    -- -- DevIcon will be appended to `name`
+    -- override = {
+    --  zsh = {
+    --    icon = "",
+    --    color = "#428850",
+    --    cterm_color = "65",
+    --    name = "Zsh"
+    --  }
+    -- },
+  }
+
+  -- Hop.nvim
+  local hop = require('hop')
+  hop.setup()
+  local directions = require('hop.hint').HintDirection
+  vim.keymap.set('', 'f', function()
+    hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+  end, {remap=true})
+  vim.keymap.set('', 'F', function()
+    hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+  end, {remap=true})
+  vim.keymap.set('', 't', function()
+    hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
+  end, {remap=true})
+  vim.keymap.set('', 'T', function()
+    hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
+  end, {remap=true})
+  vim.keymap.set('', 's', function()
+    hop.hint_char2()
+  end, {remap=true})
+  -- Might want to add a shortcut to HopWord later on
+
+  -- LuaLine
+  require('lualine').setup {
+    options = {  theme = 'OceanicNext' }
   }
 EOF
+
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+
+" ******************** LuaSnip ********************
+
+" press <Tab> to expand or jump in a snippet. These can also be mapped separately
+" via <Plug>luasnip-expand-snippet and <Plug>luasnip-jump-next.
+imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' 
+" -1 for jumping backwards.
+inoremap <silent> <S-Tab> <cmd>lua require'luasnip'.jump(-1)<Cr>
+
+snoremap <silent> <Tab> <cmd>lua require('luasnip').jump(1)<Cr>
+snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>
+
+" For changing choices in choiceNodes (not strictly necessary for a basic setup).
+imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+
 
 " ******************** TO CHECK ********************
 
