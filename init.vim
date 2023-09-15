@@ -77,6 +77,9 @@ call plug#begin(stdpath('data') . '/plugged')
   " Facilitate opening files from grep output
   Plug 'bogado/file-line'
 
+  " Copilot
+  Plug 'github/copilot.vim'
+
   """""""""""""""""""""""""""""""""" TODO """"""""""""""""""""""""""""""""""""""""
 
   " Expand region
